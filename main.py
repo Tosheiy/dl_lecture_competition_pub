@@ -41,7 +41,7 @@ def run(args: DictConfig):
     #       Model
     # ------------------
     model = BasicConvClassifier(
-        train_set.num_classes, train_set.seq_len, train_set.num_channels
+        train_set.num_classes, train_set.seq_len, train_set.num_channels # num_chnnels は入力次元となる
     ).to(args.device)
 
     # ------------------

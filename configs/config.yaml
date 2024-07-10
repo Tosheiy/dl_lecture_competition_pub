@@ -1,6 +1,6 @@
 batch_size: 128
-epochs: 80
-lr: 0.001
+epochs: 80 # debug 80
+lr: 0.00005
 
 device: cuda:0
 num_workers: 4
@@ -11,3 +11,6 @@ data_dir: data
 
 # Evaluation
 model_path: 
+
+# Early_stopping
+patience: 10

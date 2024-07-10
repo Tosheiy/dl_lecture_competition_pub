@@ -47,19 +47,20 @@ def run(args: DictConfig):
     # ------------------
     #     Optimizer
     # ------------------
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.00001) # L2正則化を追加
 
     # ------------------
     #   Start training
     # ------------------  
     max_val_acc = 0
+    early_stopping_cnt = 0
     accuracy = Accuracy(
         task="multiclass", num_classes=train_set.num_classes, top_k=10
     ).to(args.device)
-      
+
     for epoch in range(args.epochs):
         print(f"Epoch {epoch+1}/{args.epochs}")
-        
+
         train_loss, train_acc, val_loss, val_acc = [], [], [], []
         
         model.train()
@@ -97,6 +98,13 @@ def run(args: DictConfig):
             cprint("New best.", "cyan")
             torch.save(model.state_dict(), os.path.join(logdir, "model_best.pt"))
             max_val_acc = np.mean(val_acc)
+            early_stopping_cnt = 0
+        else: # Early_stopping
+            early_stopping_cnt += 1
+
+        if early_stopping_cnt >= args.patience:
+            cprint(f"Validation accuracy did not improve for {args.patience} epochs. Stopping training.", "yellow")
+            break
             
     
     # ----------------------------------

@@ -37,7 +37,22 @@ from src.fine_tuning import fine_tuning
 # for ch in raw.info['chs']:
 #     print(ch['ch_name'])
 
-# for dig in raw.info['dig']:
+# for dig in raw.info['dig']
+# 
+from src.pre_process1 import preprocess_meg
+
+orig_sample_rate = 200  # 元のサンプリングレート
+new_sample_rate = 120   # 新しいサンプリングレート
+tmin = -0.5  # エポックの開始時間（秒）
+tmax = 1.0   # エポックの終了時間（秒）
+data_dir = ".\\data"
+
+x_train = torch.load(os.path.join(data_dir, f"val_X.pt"))
+
+# データの前処理
+preprocessed_data = preprocess_meg(x_train, orig_sample_rate, new_sample_rate, tmin, tmax)
+
+exit()
 import tensorflow as tf
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 

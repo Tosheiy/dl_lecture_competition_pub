@@ -156,16 +156,19 @@ from keras.layers import SeparableConv2D, DepthwiseConv2D
 from keras.layers import BatchNormalization
 from keras.layers import SpatialDropout2D
 from keras.regularizers import l1_l2
-from keras.layers import Input, Flatten
+from keras.layers import Input, Flatten, Reshape
 from keras.constraints import max_norm
 
 def EEGNet(output, Channels = 271, Time_seq = 281, 
-             dropoutRate = 0.5, kernLength = 64, F1 = 8, 
+             dropoutRate = 0.25, kernLength = 100, F1 = 8, 
              D = 2, F2 = 16, norm_rate = 0.25, dropoutType = 'Dropout'):
     """ 
     EEGNet - a compact CNN model for EEG-based neurodecoding
     """
-    # input1 = Input(shape = (1, Channels, Time_seq))
+    # # 入力層の形状を (Channels, Time_seq) に設定
+    # input1 = Input(shape=(Channels, Time_seq))
+    # # リシェイプ層 (1, チャネル数, 時間データ数) にリシェイプ
+    # reshaped = Reshape((1, Channels, Time_seq))(input1)
     input1 = Input(shape=(Channels, Time_seq, 1))
     block1 = Conv2D(F1, (1, kernLength), padding = 'same', input_shape = (1, Channels, Time_seq), use_bias = False)(input1)
     block1 = BatchNormalization(axis = -1)(block1)
@@ -182,16 +185,19 @@ def EEGNet(output, Channels = 271, Time_seq = 281,
     block2 = Dropout(dropoutRate)(block2)
     block2 = Flatten(name = 'flatten')(block2)
     
-    # dense  = Dense(nb_classes, name = 'dense', kernel_constraint = max_norm(norm_rate))(block2)
-    dense1 = Dense(1024, activation='elu', kernel_constraint=max_norm(norm_rate))(block2)
-    dense1 = Dropout(dropoutRate)(dense1)
-    dense = Dense(output, activation='linear', kernel_constraint=max_norm(norm_rate))(dense1)
+    dense  = Dense(output, name = 'dense', kernel_constraint = max_norm(norm_rate))(block2)
+    # dense1 = Dense(1024, activation='elu', kernel_constraint=max_norm(norm_rate))(block2)
+    # dense1 = Dropout(dropoutRate)(dense1)
+    # dense = Dense(output, activation='linear', kernel_constraint=max_norm(norm_rate))(dense1)
     
     return Model(inputs=input1, outputs=dense)
 
 
+from tensorflow.keras.losses import Loss
 import tensorflow as tf
+from tensorflow.keras.utils import register_keras_serializable
 
+@register_keras_serializable(package='Custom', name='custom_loss')
 def custom_loss(y_true, y_pred):
     t = 0.5
     lamda = 0.8

@@ -1,10 +1,10 @@
 batch_size: 128
-epochs: 80 # debug 80
-lr: 0.01
+epochs: 80
+lr: 0.001
 
 device: cuda:0
 num_workers: 4
-seed: 1234
+seed: 1
 use_wandb: False
 
 data_dir: data
